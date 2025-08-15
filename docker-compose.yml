@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootuser@123
+      MYSQL_DATABASE: vidyatantrapath_db
+      MYSQL_USER: vidyatantrapath
+      MYSQL_PASSWORD: vidyatantrapath@2025_PMRBP_pwd
+    #ports:
+      # - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  springboot-app:
+    build: .
+    container_name: springboot-container
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/vidyatantrapath_db?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: vidyatantrapath
+      SPRING_DATASOURCE_PASSWORD: vidyatantrapath@2025_PMRBP_pwd
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      
+      SPRING_MAIL_USERNAME: your_email
+      SPRING_MAIL_PASSWORD: your_password
+      
+      FILE_STORAGE_UPLOADS_LOCATION: /app/storage/Uploads
+      FILE_STORAGE_CONVERSION_LOCATION: /app/storage/Converted
+      SECURITY_ADMINEMAIL: your_admin_email
+    ports:
+      - "80:8081"
+    networks:
+      - app-network
+    volumes:
+      - "/mnt:/app/storage"
+    entrypoint: "java -jar app.jar"
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge
